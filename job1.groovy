@@ -4,8 +4,10 @@ pipeline {
     stages {
         stage('Hello') {
             steps {
-                sh "echo 'hello'"
+                sh "echo 'hello world'"
             }
         }
     }
-}
+}234
+dsafzc
+sdfgs
