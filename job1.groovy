@@ -4,8 +4,13 @@ pipeline {
     stages {
         stage('Hello') {
             steps {
-                sh "echo 'hello'"
+                sh "echo 'hello hello'"
             }
         }
     }
-}
+}sdf
+
+sdfsd
+sdfe
+
+erger
