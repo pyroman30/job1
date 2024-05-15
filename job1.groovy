@@ -9,9 +9,13 @@ pipeline {
         stage('Получение последней релизной ветки') {
             steps {
                 script {
+                    // Получение списка всех веток из репозитория
+                    def gitRemoteOutput = sh(script: "git ls-remote --heads origin", returnStdout: true).trim()
+                    echo "Результат выполнения команды git ls-remote --heads origin:\n${gitRemoteOutput}"
+
                     // Получение последней релизной ветки
                     def latestReleaseBranch = sh(script: "git ls-remote --heads origin | grep 'refs/heads/release/' | awk -F'/' '{print \$3 \"/\" \$4 \$5}' | sort -V | tail -n1", returnStdout: true).trim()
-                    echo "$latestReleaseBranch"
+                    echo "Последняя релизная ветка: ${latestReleaseBranch}"
 
                     // Установка найденной ветки в параметр BRANCH
                     params.BRANCH = latestReleaseBranch
