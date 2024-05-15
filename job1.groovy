@@ -11,7 +11,7 @@ pipeline {
                 script {
                     // Получение последней релизной ветки
                     def latestReleaseBranch = sh(script: "git ls-remote --heads origin | grep 'refs/heads/release/' | cut -d'/' -f3 | sort -r | head -n1", returnStdout: true).trim()
-                    echo 'latestReleaseBranch'
+                    echo '$latestReleaseBranch'
 
                     // Установка найденной ветки в параметр BRANCH
                     params.BRANCH = latestReleaseBranch
