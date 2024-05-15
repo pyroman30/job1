@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'BRANCH', defaultValue: '', description: 'Branch to deploy from')
+        string(name: 'BRANCH', defaultValue: '', description: 'Ветка для развертывания')
     }
 
     stages {
-        stage('Get Latest Release Branch') {
+        stage('Получение последней релизной ветки') {
             steps {
                 script {
                     // Получение последней релизной ветки
@@ -19,7 +19,7 @@ pipeline {
             }
         }
 
-        stage('Execute Command in Latest Release Branch') {
+        stage('Выполнение команды в последней релизной ветке') {
             when {
                 expression { params.BRANCH != '' && params.BRANCH != null }
             }
