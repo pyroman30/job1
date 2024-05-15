@@ -10,7 +10,7 @@ pipeline {
             steps {
                 script {
                     // Получение последней релизной ветки
-                    def latestReleaseBranch = sh(script: "git ls-remote --heads origin | grep 'refs/heads/release/' | awk -F'/' '{print $3 "/" $4 $5}' | sort -V | tail -n1", returnStdout: true).trim()
+                    def latestReleaseBranch = sh(script: "git ls-remote --heads origin | grep 'refs/heads/release/' | awk -F'/' '{print \$3 \"/\" \$4 \$5}' | sort -V | tail -n1", returnStdout: true).trim()
                     echo "$latestReleaseBranch"
 
                     // Установка найденной ветки в параметр BRANCH
