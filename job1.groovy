@@ -21,7 +21,7 @@ pipeline {
 
         stage('Execute Command in Latest Release Branch') {
             when {
-                expression { params.BRANCH != '' }
+                expression { params.BRANCH != '' && params.BRANCH != null }
             }
             steps {
                 script {
