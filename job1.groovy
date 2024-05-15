@@ -13,8 +13,7 @@ pipeline {
                     def latestReleaseBranch = sh(script: "git ls-remote --heads origin | grep 'refs/heads/release/' | awk -F'/' '{print \$3 \"/\" \$4 \$5}' | sort -V | tail -n1", returnStdout: true).trim()
                     echo "$latestReleaseBranch"
 
-                    // Установка найденной ветки в параметр BRANCH
-                    params.BRANCH = latestReleaseBranch
+              
                 }
             }
         }
