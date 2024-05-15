@@ -18,7 +18,7 @@ pipeline {
                     echo "Последняя релизная ветка: ${latestReleaseBranch}"
 
                     // Установка найденной ветки в параметр BRANCH
-                    params.BRANCH = latestReleaseBranch
+                    params.BRANCH = "$latestReleaseBranch"
                 }
             }
         }
