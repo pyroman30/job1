@@ -10,9 +10,20 @@ pipeline {
             steps {
                 script {
                     // Получение последней релизной ветки
-                    def latestReleaseBranch = sh(script: "git ls-remote --heads origin | grep 'refs/heads/release/' | cut -d'/' -f3 | sort -r | head -n1", returnStdout: true).trim()
-                    echo "$latestReleaseBranch"
-
+                    def releaseBranches = sh(script: "git ls-remote --heads origin | grep 'refs/heads/release/'", returnStdout: true).trim().split('\n')
+                    def latestReleaseBranch = ''
+                    def latestVersion = 0
+                    
+                    releaseBranches.each { branch ->
+                        def version = branch.tokenize('refs/heads/release/job1-')[1].tokenize('.')[0].toInteger()  // Извлечение версии из названия ветки
+                        if (version > latestVersion) {
+                            latestVersion = version
+                            latestReleaseBranch = branch.tokenize('refs/heads/')[1]
+                        }
+                    }
+                    
+                    echo "Latest release branch: $latestReleaseBranch"
+                    
                     // Установка найденной ветки в параметр BRANCH
                     params.BRANCH = latestReleaseBranch
                 }
