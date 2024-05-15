@@ -19,14 +19,5 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            when {
-                expression { params.BRANCH != '' }
-            }
-            steps {
-                echo "Deploying from branch: ${params.BRANCH}"
-                // Здесь вы можете добавить команды для деплоя из найденной релизной ветки
-            }
-        }
     }
 }
