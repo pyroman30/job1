@@ -18,13 +18,8 @@ pipeline {
     post {
         always {
             echo 'Этот шаг выполнится всегда'
-            // Отправляем POST-запрос
-            httpRequest(
-                url: 'http://example.com/api',
-                httpMode: 'POST',
-                requestBody: '{"key": "value"}',
-                contentType: 'APPLICATION_JSON'
-            )
+            
+            
         }
     }
 }
