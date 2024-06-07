@@ -1,31 +1,11 @@
 pipeline {
     agent any
-
-    parameters {
-        string(name: 'BRANCH', defaultValue: '', description: 'Branch to deploy from')
-    }
-
-   
     
     stages {
-        stage('Run Python Script') {
+        stage('Say Hello') {
             steps {
-                script {
-                    // Запускаем скрипт Python
-                    def result = sh(script: 'python script.py', returnStatus: true)
-                    if (result != 0) {
-                        echo "Скрипт завершился с ошибкой (код возврата ${result})"
-                    }
-                }
+                echo 'Привет'
             }
-        }
-    }
-    
-    post {
-        always {
-            echo 'Этот шаг выполнится всегда'
-            
-            
         }
     }
 }
