@@ -1,5 +1,11 @@
 pipeline {
     agent any
+
+    parameters {
+        string(name: 'BRANCH', defaultValue: '', description: 'Branch to deploy from')
+    }
+
+   
     
     stages {
         stage('Run Python Script') {
