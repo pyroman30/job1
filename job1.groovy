@@ -1,13 +1,7 @@
 pipeline {
     agent any
-
+    
     stages {
-        stage('Hello') {
+        stage('Say Hello') {
             steps {
-                sh "echo 'hello world'"
-            }
-        }
-    }
-}234
-dsafzc
-sdfgs
+
