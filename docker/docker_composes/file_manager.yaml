@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  file_manager:
+    build:
+      context: ../../../
+      dockerfile: setup_docker/fs_file_manager/Dockerfile
+      args:
+        my_arg: 1
+    environment:
+      - DB_HOST=pg
+      - DB_NAME=fs_metastore
+      - DB_PASS=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - MLOPS_TEAMLEAD=someone
+      - SCHEMA_NAME=public
+      - MINIO_ACCESS_KEY_ID=FIXME
+      - MINIO_SECRET_ACCESS_KEY=FIXME
+      - MINIO_S3_USE_SSL=FALSE #OR TRUE
+      - MINIO_S3_ENDPOINT_URL=FIXME
+      - MINIO_S3_BUCKET=FIXME
+    depends_on:
+      pg:
+        condition: service_healthy
+      fsdb:
+        condition: service_started
+    command: uvicorn fs_file_manager.server:app --host 0.0.0.0 --port 8005
+    ports:
+      - "8005:8005"

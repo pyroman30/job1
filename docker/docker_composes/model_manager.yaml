@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  model_manager:
+    build:
+      context: ../../../
+      dockerfile: setup_docker/fs_model_manager/Dockerfile
+      args:
+        my_arg: 1
+    environment:
+      - DB_HOST=pg
+      - DB_NAME=fs_metastore
+      - DB_PASS=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - MLOPS_TEAMLEAD=someone
+      - SCHEMA_NAME=stable_model_manager
+      - FS_BACKEND_PROXY_URI=$backend_proxy_url
+      - KAFKA_INSTANCE_ADDRESS=host.docker.internal:29092
+      - KAFKA_DEBUG_MODE=True
+    depends_on:
+      pg:
+        condition: service_healthy
+      fsdb:
+        condition: service_started
+      kafka1:
+        condition: service_started
+    command: uvicorn fs_model_manager.server:app --host 0.0.0.0 --port 8004
+    ports:
+      - "8004:8004"

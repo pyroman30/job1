@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  proxy_default_auth:
+    build:
+      context: ../../../
+      dockerfile: setup_docker/fs_backend_proxy/Dockerfile
+      args:
+        my_arg: 1
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8006
+      - AUTH_TYPE=FAKE
+      - CONNECTION_URI=postgresql://postgres:postgres@pg:5432/fs_metastore
+      - SCHEMA_NAME=stable_users
+    profiles:
+      - default_auth
+    depends_on:
+      pg:
+        condition: service_healthy
+      fsdb:
+        condition: service_started
+    entrypoint: python3.7 -m fs_backend_proxy --host=0.0.0.0 --port=8006 /general:http://general:8000 /prod:http://registry:8002
+      /dev:http://registry:8002 /prod:http://backend_api:8001 /dev:http://backend_api:8001 /registry:http://registry:8002 /metrics:http://metrics:8003
+      /model_manager:http://model_manager:8004 /file_manager:http://file_manager:8005
+    ports:
+      - "8006:8006"
+
+  proxy_keycloak_auth:
+    build:
+      context: ../../../
+      dockerfile: setup_docker/fs_backend_proxy/Dockerfile
+      args:
+        my_arg: 1
+    network_mode: "service:localhost_keycloak_proxy"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8006
+      - AUTH_TYPE=KEYCLOAK
+      - KEYCLOAK_CLIENT_ID=feature_store_ui
+      - KEYCLOAK_CLIENT_SECRET=g4S0cUVhQVZOTEIrkE1spDhbOv06hEal
+      - KEYCLOAK_AUTH_URL=http://localhost:8080/realms/compose-master/protocol/openid-connect/auth
+      - KEYCLOAK_REDIRECT_URI=http://localhost:8006/keycloak_callback_login
+      - KEYCLOAK_TOKEN_URL=http://localhost:8080/realms/compose-master/protocol/openid-connect/token
+      - KEYCLOAK_USER_INFO_URL=http://localhost:8080/realms/compose-master/protocol/openid-connect/userinfo
+      - CONNECTION_URI=postgresql://postgres:postgres@pg:5432/fs_metastore
+      - SCHEMA_NAME=stable_users
+    profiles:
+      - keycloak_auth
+    depends_on:
+      pg:
+        condition: service_healthy
+      fsdb:
+        condition: service_started
+      keycloak:
+        condition: service_started
+    entrypoint: python3.7 -m fs_backend_proxy --host=0.0.0.0 --port=8006 /general:http://general:8000 /prod:http://registry:8002
+      /dev:http://registry:8002 /prod:http://backend_api:8001 /dev:http://backend_api:8001 /registry:http://registry:8002 /metrics:http://metrics:8003
+      /model_manager:http://model_manager:8004 /file_manager:http://file_manager:8005

@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  pg:
+    build:
+      {context: ./db_docker, dockerfile: Dockerfile}
+    environment:
+      - POSTGRES_DB=fs_metastore
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: "pg_isready -q -U postgres"
+      interval: 3s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"

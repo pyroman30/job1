@@ -1,0 +1,27 @@
+[tool.black]
+extend-exclude = 'env|.env|venv|.venv'
+line-length = 80
+
+[tool.isort]
+profile = "black"
+line_length = 80
+multi_line_output = 3
+
+[tool.ruff]
+# Allow lines to be as long as 80 characters.
+line-length = 80
+
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    # "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+    "F403",  # unable to detect undefined namesF
+]

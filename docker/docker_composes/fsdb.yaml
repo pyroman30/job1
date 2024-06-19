@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  fsdb:
+    build:
+      context: ../../../
+      dockerfile: setup_docker/fs_db/Dockerfile
+      args:
+        my_arg: 1
+    depends_on:
+      pg:
+        condition: service_healthy
+    environment:
+      - CONNECTION_URI=postgresql://postgres:postgres@pg:5432/fs_metastore
+    command: sh -c "cd docker_db && sh upgrade_db.sh && tail -f /dev/null"

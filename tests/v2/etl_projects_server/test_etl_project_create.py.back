@@ -1,0 +1,221 @@
+from fs_common_lib.fs_registry_api import join_urls
+from fs_common_lib.fs_general_api.data_types import GitFlowType
+from fs_db.db_classes_general import EtlProjectVersion
+
+from fs_general_api.config import settings
+
+
+class TestEtlCreateView:
+    url = "v2/etl/create"
+
+    def test_success_new_project(
+            self,
+            db,
+            client,
+            mock_aioresponse,
+            hub_1,
+    ):
+        backend_url = join_urls(
+            settings.backend_uri_dev, "internal", "etl", "create"
+        )
+        mock_aioresponse.post(
+            backend_url,
+            status=200,
+            payload={},
+        )
+
+        git_url = join_urls(
+            settings.git_manager_uri,
+            "internal",
+            "v2",
+            "etl_project",
+            "branch",
+        )
+        mock_aioresponse.post(
+            git_url,
+            status=200,
+            payload={
+                "branch_name": "test_branch_name",
+                "git_branch_url": "test_git_branch_url",
+            },
+        )
+
+        response = client.post(
+            self.url,
+            json={
+                "comment": None,
+                "data": {
+                    "name": "mlops_super_feature_project",
+                    "description": "Проект для разработки тестовых фичей",
+                    "jira_task": "FSTORE-777",
+                    "cron": "* 1 7 * *",
+                    "hub_id": hub_1.id,
+                    "author_name": "Моренко Егор",
+                    "author_email": "emorenko@alfabank.ru",
+                    "user_id": 1,
+                    "git_flow_type": "ONE_REPO",
+                    "project_type": "FEATURES",
+                },
+            },
+        )
+
+        assert response.status_code == 200
+
+        created_version: EtlProjectVersion = db.query(EtlProjectVersion).first()
+        assert response.json() == {
+            "current_version": {
+                "author_email": "emorenko@alfabank.ru",
+                "author_name": "Моренко Егор",
+                "branch_name": "test_branch_name",
+                "created_timestamp": created_version.created_timestamp.isoformat(),
+                "git_develop_url": 'https://git.moscow.alfaintra.net/projects/AFM/repos/feature_store_dags_prod/browse/mlops_super_feature_project/?at=refs%2Fheads%2Ftest_branch_name',
+                "git_master_url": "https://git.moscow.alfaintra.net/projects/AFM/repos/feature_store_dags_prod/browse/mlops_super_feature_project/?at=refs%2Fheads%2Ftest_branch_name",
+                "jira_task": "FSTORE-777",
+                "jira_task_url": "https://jira.moscow.alfaintra.net/browse/FSTORE-777",
+                "moved_to_prod_release_timestamp": None,
+                "moved_to_prod_review_timestamp": None,
+                "moved_to_production_timestamp": None,
+                "moved_to_testing_timestamp": None,
+                "pull_request_url": None,
+                "schedule_interval": "* 1 7 * *",
+                "schedule_interval_description": "Every minute, "
+                                                 "between 01:00 AM and 01:59 AM, "
+                                                 "on day 7 of the month",
+                "status": "DEVELOPING",
+                "user_id": 1,
+                "version": "1.0",
+            },
+            "description": "Проект для разработки тестовых фичей",
+            "git_flow_type": "ONE_REPO",
+            "hub_id": hub_1.id,
+            "id": created_version.etl_project_id,
+            "name": "mlops_super_feature_project",
+            "project_type": "FEATURES",
+            "versions": [{"version": "1.0"}],
+        }
+
+    def test_success_new_version(
+            self,
+            db,
+            client,
+            mock_aioresponse,
+            etl_project_1_version_1,
+            etl_project_1,
+            hub_1,
+    ):
+        backend_url = join_urls(
+            settings.backend_uri_dev, "internal", "etl", "create"
+        )
+        mock_aioresponse.post(
+            backend_url,
+            status=200,
+            payload={},
+        )
+
+        git_url = join_urls(
+            settings.git_manager_uri,
+            "internal",
+            "v2",
+            "etl_project",
+            "branch",
+        )
+        mock_aioresponse.post(
+            git_url,
+            status=200,
+            payload={
+                "branch_name": "test_branch_name",
+                "git_branch_url": "test_git_branch_url",
+            },
+        )
+
+        etl_project_1.git_flow_type = GitFlowType.TWO_REPOS
+        db.add(etl_project_1)
+        db.flush()
+
+        response = client.post(
+            self.url,
+            json={
+                "comment": None,
+                "data": {
+                    "name": etl_project_1_version_1.etl_project.name,
+                    "description": "Проект для разработки тестовых фичей",
+                    "jira_task": "FSTORE-777",
+                    "cron": "* 1 7 * *",
+                    "hub_id": hub_1.id,
+                    "author_name": "Моренко Егор",
+                    "author_email": "emorenko@alfabank.ru",
+                    "user_id": 1,
+                    "git_flow_type": "ONE_REPO",
+                    "project_type": "FEATURES",
+                },
+            },
+        )
+
+        assert response.status_code == 200
+
+        created_version: EtlProjectVersion = (
+            db.query(EtlProjectVersion)
+            .order_by(EtlProjectVersion.id.desc())
+            .first()
+        )
+        assert response.json() == {
+            "current_version": {
+                "author_email": "emorenko@alfabank.ru",
+                "author_name": "Моренко Егор",
+                "branch_name": "test_branch_name",
+                "created_timestamp": created_version.created_timestamp.isoformat(),
+                "git_develop_url": "https://git.moscow.alfaintra.net/projects/AFM/repos/feature_store_dags_prod/browse/etl_project_1/?at=refs%2Fheads%2Ftest_branch_name",
+                "git_master_url": "https://git.moscow.alfaintra.net/projects/AFM/repos/feature_store_dags_prod/browse/etl_project_1/?at=refs%2Fheads%2Ftest_branch_name",
+                "jira_task": "FSTORE-777",
+                "jira_task_url": "https://jira.moscow.alfaintra.net/browse/FSTORE-777",
+                "moved_to_prod_release_timestamp": None,
+                "moved_to_prod_review_timestamp": None,
+                "moved_to_production_timestamp": None,
+                "moved_to_testing_timestamp": None,
+                "pull_request_url": None,
+                "schedule_interval": "* 1 7 * *",
+                "schedule_interval_description": "Every minute, "
+                                                 "between 01:00 AM and 01:59 AM, "
+                                                 "on day 7 of the month",
+                "status": "DEVELOPING",
+                "user_id": 1,
+                "version": "2.0",
+            },
+            "description": "test_description",
+            "git_flow_type": "ONE_REPO",
+            "hub_id": hub_1.id,
+            "id": created_version.etl_project_id,
+            "name": "etl_project_1",
+            "project_type": "FEATURES",
+            "versions": [{"version": "1.0"}, {"version": "2.0"}],
+        }
+
+    def test_inprogress_version_exists(
+            self,
+            db,
+            client,
+            etl_project_1_version_1,
+            etl_project_1_version_2,
+            hub_1,
+    ):
+        response = client.post(
+            self.url,
+            json={
+                "comment": None,
+                "data": {
+                    "name": etl_project_1_version_1.etl_project.name,
+                    "description": "Проект для разработки тестовых фичей",
+                    "jira_task": "FSTORE-777",
+                    "cron": "* 1 7 * *",
+                    "hub_id": hub_1.id,
+                    "author_name": "Моренко Егор",
+                    "author_email": "emorenko@alfabank.ru",
+                    "user_id": 1,
+                    "git_flow_type": "ONE_REPO",
+                    "project_type": "FEATURES",
+                },
+            },
+        )
+
+        assert response.status_code == 409
+        assert response.json() == "version creation not available"

@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  general:
+    build:
+      context: ../../../
+      dockerfile: setup_docker/fs_general_api/Dockerfile
+      args:
+        my_arg: 1
+    environment:
+      - BACKEND_URI_DEV=http://backend_api:8001
+      - BACKEND_URI_PROD=http://backend_api:8001
+      - BACKEND_PROXY_URL=$backend_proxy_url
+      - DB_HOST=pg
+      - DB_NAME=fs_metastore
+      - DB_PASS=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - MLOPS_TEAMLEAD=someone
+      - SCHEMA_NAME=stable_general
+    depends_on:
+      pg:
+        condition: service_healthy
+      fsdb:
+        condition: service_started
+    command: uvicorn fs_general_api.server:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"

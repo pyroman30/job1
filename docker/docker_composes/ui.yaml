@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  ui:
+    build:
+      context: ../../../fs_registry_ui
+    ports:
+      - "8085:80"
+    environment:
+      NODE_ENV: stage
+      AUTH_TYPE: ldap
+      HOST: localhost
+      API_BASE_URL: $backend_proxy_url

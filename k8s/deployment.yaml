@@ -1,0 +1,187 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fs-general-api
+  namespace: fs-namespace # will be changed during deployment
+  labels:
+    app: fs-general-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fs-general-api
+  template:
+    metadata:
+      labels:
+        app: fs-general-api
+    spec:
+      containers:
+      - name: fs-general-api
+        image: fs-image # will be changed during deployment
+        imagePullPolicy: Always
+        env:
+        - name: SCHEMA_NAME
+          value: fs-schema # will be changed during deployment
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: fs-secret
+              key: DB_PASS
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: DB_PORT
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: DB_NAME
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: DB_USER
+        - name: BACKEND_URI_DEV
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: BACKEND_URI_DEV
+        - name: BACKEND_URI_PROD
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: BACKEND_URI_PROD
+        - name: LOG_FORMAT
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: LOG_FORMAT
+        - name: DATEFMT
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: DATEFMT
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: LOG_LEVEL
+        - name: METRIC_MANAGER_URI
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: METRIC_MANAGER_URI
+        - name: USE_METRIC_MANAGER
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: USE_METRIC_MANAGER
+        - name: GIT_MANAGER_URI
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: GIT_MANAGER_URI
+        - name: USE_GIT_MANAGER
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: USE_GIT_MANAGER
+        - name: USE_GIT_MANAGER_FOR_DELETION
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: USE_GIT_MANAGER_FOR_DELETION
+        - name: GIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: fs-secret
+              key: GIT_PASSWORD
+        - name: GIT_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: GIT_USERNAME
+        - name: GIT_REPO_DEV
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: GIT_REPO_DEV
+        - name: GIT_REPO_PROD
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: GIT_REPO_PROD
+        - name: GIT_URI_DEV
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: GIT_URI_DEV
+        - name: GIT_URI_PROD
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: GIT_URI_PROD
+        - name: JIRA_URI
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: JIRA_URI
+        - name: AIRFLOW_SSH_HOST_PROD
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: AIRFLOW_SSH_HOST_PROD
+        - name: AIRFLOW_SSH_PORT_PROD
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: AIRFLOW_SSH_PORT_PROD
+        - name: AIRFLOW_SSH_USERNAME_PROD
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: AIRFLOW_SSH_USERNAME_PROD
+        - name: AIRFLOW_SSH_PASSWORD_PROD
+          valueFrom:
+            secretKeyRef:
+              name: fs-secret
+              key: AIRFLOW_SSH_PASSWORD_PROD
+        - name: PR_TARGET_PROJECT_REVIEWERS
+          valueFrom:
+            configMapKeyRef:
+              name: fs-config
+              key: PR_TARGET_PROJECT_REVIEWERS
+
+        ports:
+        - containerPort: 8000
+        livenessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8000
+          initialDelaySeconds: 10
+          timeoutSeconds: 300
+          periodSeconds: 300
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8000
+          initialDelaySeconds: 10
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "1"
+          limits:
+            memory: "4Gi"
+            cpu: "1"
